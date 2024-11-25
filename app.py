@@ -12,12 +12,12 @@ cosine_sim = np.load('models/cosine_similarity.npy')
 # Load the dataset
 df = pd.read_csv('models/preprocessed_dataset.csv')
 
-# Serve the HTML file
+# Serve the HTML file (renamed index1.html to index.html)
 @app.route('/')
 def index():
-    return send_from_directory('.', 'index1.html')
+    return send_from_directory('.', 'index.html')  # Changed to 'index.html'
 
-# Serve static files (e.g., JavaScript)
+# Serve static files (e.g., JavaScript, images)
 @app.route('/<path:path>')
 def serve_static(path):
     return send_from_directory('.', path)
@@ -73,4 +73,4 @@ def get_product_recommendations(product_name, num_recommendations=10):
     return recommendations
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=10000, debug=True)  # Set to run on 0.0.0.0 for Render
