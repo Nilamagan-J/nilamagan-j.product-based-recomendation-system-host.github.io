@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Recommendation System</title>
+    <link rel="stylesheet" href="models/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-image: url('models/bg9.jpg');
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            
+        }
+
+        .container {
+            max-width: 400px; /* Adjusted width */
+            padding: 20px;
+            border-radius: 10px;
+            background-color: rgba(40, 38, 38, 0.274);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            align-items: center;
+        }
+
+        h1 {
+            color: #dee4e4; /* Changed color to light blue-green */
+            margin-bottom: 20px; /* Reduced margin */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #dee4e4; /* Changed color to light blue-green */
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #5c5c5c;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+         
+        button {
+            padding: 15px 30px;
+            background-color: #5799e5;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #222d3a;
+        }
+
+        #result {
+            margin-top: 30px;
+        }
+
+        .product-container {
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(50, 50, 50, 0.2);
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-info {
+            flex: 1;
+            margin-left: 10px;
+            text-align: left;
+        }
+
+        .product-info a {
+            color: #78a5d4;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .product-info a:hover {
+            color: #0056b3;
+        }
+
+        .product-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .image-placeholder {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+        }
+
+        .image-placeholder-text {
+            color: #777;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Product Recommendation System</h1>
+        <label for="product_name">Enter Product Name:</label>
+        <input type="text" id="product_name" placeholder="Enter product name...">
+        
+        <button onclick="getRecommendations()">Get Recommendations</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function getRecommendations() {
+            var product_name = document.getElementById('product_name').value; // Changed to product_name
+            fetch('/recommend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ product_name: product_name }) // Changed to product_name
+            })
+            .then(response => response.json())
+            .then(data => {
+                var resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = '';
+                if (data.error) {
+                    resultDiv.innerHTML = '<p>' + data.error + '</p>';
+                } else {
+                    var recommendations = data.recommendations;
+                    if (recommendations.length === 0) {
+                        resultDiv.innerHTML = '<p>No recommendations found.</p>';
+                    } else {
+                        var productsHTML = '';
+                        recommendations.forEach(function(product) {
+                            if (product.img_link) {
+                                var imgHTML = '<img src="' + product.img_link + '" alt="Product Image" class="product-img">';
+                                var nameHTML = '<a href="' + product.product_link + '" target="_blank">' + product.product_name + '</a>';
+                                var productHTML = '<div class="product-container">' + imgHTML + '<div class="product-info">' + nameHTML + '</div></div>';
+                                productsHTML += productHTML;
+                            } else {
+                                var nameHTML = '<div class="product-info"><p>' + product.product_name + ': Image not available</p></div>';
+                                var productHTML = '<div class="product-container">' + nameHTML + '</div>';
+                                productsHTML += productHTML;
+                            }
+                        });
+                        resultDiv.innerHTML = productsHTML;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
