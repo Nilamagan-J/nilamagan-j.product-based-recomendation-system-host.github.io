@@ -130,48 +130,51 @@
         <div id="result"></div>
     </div>
 
-    <script>
-        function getRecommendations() {
-            var product_name = document.getElementById('product_name').value; // Changed to product_name
-            fetch('/recommend', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ product_name: product_name }) // Changed to product_name
-            })
-            .then(response => response.json())
-            .then(data => {
-                var resultDiv = document.getElementById('result');
-                resultDiv.innerHTML = '';
-                if (data.error) {
-                    resultDiv.innerHTML = '<p>' + data.error + '</p>';
+   <script>
+    function getRecommendations() {
+        var product_name = document.getElementById('product_name').value;
+        
+        fetch('https://product-based-recomendation-system-host.onrender.com/recommend', { // Use your Render backend URL here
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ product_name: product_name })
+        })
+        .then(response => response.json())
+        .then(data => {
+            var resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '';
+            if (data.error) {
+                resultDiv.innerHTML = '<p>' + data.error + '</p>';
+            } else {
+                var recommendations = data.recommendations;
+                if (recommendations.length === 0) {
+                    resultDiv.innerHTML = '<p>No recommendations found.</p>';
                 } else {
-                    var recommendations = data.recommendations;
-                    if (recommendations.length === 0) {
-                        resultDiv.innerHTML = '<p>No recommendations found.</p>';
-                    } else {
-                        var productsHTML = '';
-                        recommendations.forEach(function(product) {
-                            if (product.img_link) {
-                                var imgHTML = '<img src="' + product.img_link + '" alt="Product Image" class="product-img">';
-                                var nameHTML = '<a href="' + product.product_link + '" target="_blank">' + product.product_name + '</a>';
-                                var productHTML = '<div class="product-container">' + imgHTML + '<div class="product-info">' + nameHTML + '</div></div>';
-                                productsHTML += productHTML;
-                            } else {
-                                var nameHTML = '<div class="product-info"><p>' + product.product_name + ': Image not available</p></div>';
-                                var productHTML = '<div class="product-container">' + nameHTML + '</div>';
-                                productsHTML += productHTML;
-                            }
-                        });
-                        resultDiv.innerHTML = productsHTML;
-                    }
+                    var productsHTML = '';
+                    recommendations.forEach(function(product) {
+                        if (product.img_link) {
+                            var imgHTML = '<img src="' + product.img_link + '" alt="Product Image" class="product-img">';
+                            var nameHTML = '<a href="' + product.product_link + '" target="_blank">' + product.product_name + '</a>';
+                            var productHTML = '<div class="product-container">' + imgHTML + '<div class="product-info">' + nameHTML + '</div></div>';
+                            productsHTML += productHTML;
+                        } else {
+                            var nameHTML = '<div class="product-info"><p>' + product.product_name + ': Image not available</p></div>';
+                            var productHTML = '<div class="product-container">' + nameHTML + '</div>';
+                            productsHTML += productHTML;
+                        }
+                    });
+                    resultDiv.innerHTML = productsHTML;
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-    </script>
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            resultDiv.innerHTML = '<p>There was an error fetching recommendations. Please try again later.</p>';
+        });
+    }
+</script>
+
 </body>
 </html>
